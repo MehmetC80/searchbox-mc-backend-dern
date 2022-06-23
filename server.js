@@ -1,16 +1,21 @@
 import express from 'express';
 import { siteData } from './src/models.js';
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const baseUrl = process.env.BASE_URL;
+const mode = process.env.MODE;
+const port = process.env.PORT;
 
 const app = express();
-const port = process.env.PORT || 3007;
-const url = `http://localhost:${port}`;
+const url = mode === 'development' ? `${baseUrl}:${port}` : baseUrl;
 app.use(cors());
 
-app.use(express.static('public'));
+app.use(express.static('public '));
 
 app.get('/', (req, res) => {
-	res.send(`
+  res.send(`
     <!DOCTYPE html>
     <html>
     <head>
@@ -31,13 +36,13 @@ app.get('/', (req, res) => {
    <h1>Data API</h1> 
    <ul>
    ${Object.entries(siteData)
-		.map((entry) => {
-			const idCode = entry[0];
-			const data = entry[1];
-			const fullUrl = `${url}/${idCode}`;
-			return `<li><a href="${fullUrl}">${fullUrl}</a></li>`;
-		})
-		.join('')}
+     .map((entry) => {
+       const idCode = entry[0];
+       const data = entry[1];
+       const fullUrl = `${url}/${idCode}`;
+       return `<li><a href="${fullUrl}">${fullUrl}</a></li>`;
+     })
+     .join('')}
    </ul>
     </body>
     </html>
@@ -45,17 +50,17 @@ app.get('/', (req, res) => {
 });
 
 for (const entry of Object.entries(siteData)) {
-	const idCode = entry[0];
-	const data = entry[1];
-	app.get('/' + idCode, (req, res) => {
-		res.send(data);
-	});
+  const idCode = entry[0];
+  const data = entry[1];
+  app.get('/' + idCode, (req, res) => {
+    res.send(data);
+  });
 }
 
 app.get('/all', (req, res) => {
-	res.send(siteData);
+  res.send(siteData);
 });
 
 app.listen(port, () => {
-	console.log(`Listening at http://localhost:${port}`);
+  console.log(`Listening at http://localhost:${port}`);
 });
